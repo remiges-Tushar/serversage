@@ -1,0 +1,63 @@
+version: '3.9'
+services:
+
+  # bankapp:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     - OTEL_TRACES_EXPORTER=otlp
+  #     - OTEL_METRICS_EXPORTER=prometheus
+  #     - OTEL_EXPORTER_PROMETHEUS_HOST=localhost
+  #     - OTEL_EXPORTER_PROMETHEUS_PORT=9464
+  #     - OTEL_EXPORTER_PROMETHEUS_ENDPOINT=/metrics
+  #     - OTEL_LOGS_EXPORTER=logging
+  #     - OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+  #     - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+  #   ports:
+  #     - "9464:9464" # Map Prometheus metrics port
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+    - /home/tushar/Desktop/Bank-Application/Bank-Application/Bank-App/serversage_config/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    restart: unless-stopped
+
+  collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: collector
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "8888"
+    volumes:
+      - /home/tushar/Desktop/Bank-Application/Bank-Application/Bank-App/serversage_config/otel.yml:/etc/otel.yml
+    command:
+      - --config=/etc/otel.yml
+    restart: unless-stopped
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    restart: always
+    ports:
+      - "16686:16686"
+      - "4317"
+
+  
+
