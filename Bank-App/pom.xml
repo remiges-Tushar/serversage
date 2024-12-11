@@ -12,6 +12,7 @@
 	<groupId>com.example</groupId>
 	<artifactId>bankapp</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
 	<name>bankapp</name>
 	<description>Banking Web Application</description>
 	<url />
@@ -60,6 +61,11 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-tomcat</artifactId>
+ 			<scope>provided</scope> <!-- This is important. -->
 		</dependency>
 		<dependency>
 			<groupId>org.thymeleaf.extras</groupId>

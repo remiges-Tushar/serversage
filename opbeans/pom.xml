@@ -5,6 +5,7 @@
 	<groupId>co.elastic.apm</groupId>
 	<artifactId>opbeans</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
 
 	<name>opbeans</name>
 	<description>This is an implementation of the Opbeans Demo app in Java</description>
@@ -70,7 +71,11 @@
 			<artifactId>apm-agent-api</artifactId>
 			<version>${version.apm-agent-java}</version>
 		</dependency>
-
+		<dependency>
+ 			<groupId>org.springframework.boot</groupId>
+ 			<artifactId>spring-boot-starter-tomcat</artifactId>
+ 			<scope>provided</scope> <!-- This is important. -->
+		</dependency>
 		<!-- OpenTelemetry API + SDK -->
 		<dependency>
 			<groupId>io.opentelemetry</groupId>

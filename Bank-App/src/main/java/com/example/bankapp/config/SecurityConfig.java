@@ -9,7 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher; // Import the correct class
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher; 
 
 import com.example.bankapp.service.AccountService;
 
@@ -18,7 +18,7 @@ import com.example.bankapp.service.AccountService;
 public class SecurityConfig {
 
     @Autowired
-    AccountService accountService;
+    private AccountService accountService;
 
     @Bean
     public static PasswordEncoder passwordEncoder() {
@@ -28,22 +28,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable()) // Disable CSRF, be careful with this for production!
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/register").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers("/register").permitAll()  // Public registration page
+                        .requestMatchers("/login").permitAll()    // Allow login page
+                        .anyRequest().authenticated())  // All other requests need authentication
                 .formLogin(form -> form
-                        .loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/dashboard", true)
+                        .loginPage("/login")  // Login form page URL
+                        .loginProcessingUrl("/login")  // Form POST URL to process login
+                        .defaultSuccessUrl("/dashboard", true)  // Where to redirect after login
                         .permitAll())
                 .logout(logout -> logout
                         .clearAuthentication(true)
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-                        .logoutSuccessUrl("/login?logout")
+                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))  // Logout URL
+                        .logoutSuccessUrl("/login?logout")  // Redirect after logout
                         .permitAll())
                 .headers(header -> header
-                        .frameOptions(frameOptions -> frameOptions.sameOrigin()));
+                        .frameOptions(frameOptions -> frameOptions.sameOrigin()));  // Optional: Prevent clickjacking
 
         return http.build();
     }

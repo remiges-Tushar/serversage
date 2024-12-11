@@ -1,0 +1,85 @@
+version: '3.9'
+services:
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - /home/tushar/serversage_demo/serversage/serversage_demo/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus 
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana 
+      - ./grafana/provisioning:/etc/grafana/provisioning 
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    restart: unless-stopped
+
+  collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: collector
+    ports:
+      - "4317:4317" # BankApp receiver
+      - "4333:4318" # Opbeans receiver
+      - "8888"
+    volumes:
+      - /home/tushar/serversage_demo/serversage/serversage_demo/otel.yml:/etc/otel.yml
+      - collector_data:/otel 
+    command:
+      - --config=/etc/otel.yml
+    restart: unless-stopped
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    restart: always
+    ports:
+      - "16686:16686"
+      - "4317"
+    volumes:
+      - jaeger_data:/data 
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres-container
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bank_db  
+    ports:
+      - "5432:5432" 
+    volumes:
+      - /postgres_data:/var/lib/postgresql/data      
+
+  tomcat:
+    image: tomcat:latest  
+    container_name: tomcat-container
+    ports:
+      - "8080:8080"       
+    volumes:
+      - /home/tushar/serversage_demo/serversage/serversage_demo/webapps:/usr/local/tomcat/webapps
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - postgres
+
+
+
+volumes:
+  prometheus_data: {}
+  grafana_data: {}
+  collector_data: {}
+  jaeger_data: {}
